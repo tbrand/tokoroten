@@ -85,7 +85,7 @@ end
 ## Current restriction
 Currently, communication between main process and worker processes are done by `String`.
 
-So you can not pass arbitrary objects directory. (have to convert to string and re-convert from it.)
+So you can not pass arbitrary objects directly. (have to convert to string and re-convert from it.)
 
 JSON serialization is one of the way to pass the objects.
 
