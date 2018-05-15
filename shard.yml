@@ -1,0 +1,9 @@
+name: tokoroten
+version: 0.1.0
+
+authors:
+  - taicsuzu <taicsuzu@yahoo-corp.jp>
+
+crystal: 0.24.2
+
+license: MIT
