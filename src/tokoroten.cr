@@ -1,5 +1,5 @@
 module Tokoroten
-  SYMBOL_NL  = "%NL%"
+  DELIMITER = "\u{2593}\u{2596}\u{259F}"
 end
 
 require "./tokoroten/*"

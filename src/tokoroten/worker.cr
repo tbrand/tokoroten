@@ -5,8 +5,7 @@ module Tokoroten
     @process : Process?
 
     def self.create(num : Int32 = 1,
-                    read_timeout : Int32? = nil,
-                    escape_new_line : Bool = true) : Array(Worker)
+                    read_timeout : Int32? = nil) : Array(Worker)
 
       workers = [] of Worker
 
@@ -19,7 +18,7 @@ module Tokoroten
           worker_reader.read_timeout = read_timeout
         end
 
-        worker = new(main_reader, main_writer, worker_reader, worker_writer, escape_new_line)
+        worker = new(main_reader, main_writer, worker_reader, worker_writer)
         worker.run
         workers << worker
       end
@@ -27,15 +26,13 @@ module Tokoroten
     end
 
     def initialize(@main_reader : IO::FileDescriptor, @main_writer : IO::FileDescriptor,
-                   @worker_reader : IO::FileDescriptor, @worker_writer : IO::FileDescriptor,
-                   @escape_new_line : Bool = true)
+                   @worker_reader : IO::FileDescriptor, @worker_writer : IO::FileDescriptor)
     end
 
     def run
       @process = Process.fork do
         loop do
-          next unless message = @worker_reader.gets
-          message = message.gsub(SYMBOL_NL, "\n") if @escape_new_line
+          next unless message = @worker_reader.gets(DELIMITER, true)
 
           spawn task(message)
         end
@@ -44,23 +41,17 @@ module Tokoroten
 
     def exec(message : String? = nil)
       spawn do
-        if _message = message
-          message = _message.gsub("\n", SYMBOL_NL) if @escape_new_line
-        end
-
-        @worker_writer.puts message
+        @worker_writer.print "#{message}#{DELIMITER}"
       end
     end
 
     def response(message : String)
-      message = message.gsub("\n", SYMBOL_NL) if @escape_new_line
-      @main_writer.puts message
+      @main_writer.print "#{message}#{DELIMITER}"
     end
 
     def receive : String?
-      return nil unless message = @main_reader.gets
+      return nil unless message = @main_reader.gets(DELIMITER, true)
 
-      message = message.gsub(SYMBOL_NL, "\n") if @escape_new_line
       message
     end
 
