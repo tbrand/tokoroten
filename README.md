@@ -1,18 +1,18 @@
-# Tokoroten
+# tokoroten
 
-Tokoroten is one of the approach to use multiple processes in Crystal.
+tokoroten is one of the approach to use multiple processes in Crystal.
 
 `spawn` is a good feature for executing light tasks concurrently.
 
-For heavy tasks, Tokoroten has an advantage compared to `spawn`.
+For heavy tasks, tokoroten has an advantage compared to `spawn`.
 
 See the below **Performance evaluation**.
 
 ## Performance evaluation
 
-Compare the execution time of `spawn` and Tokoroten By using `sample/benchmark.cr`.
+Compare the execution time of `spawn` and tokoroten By using `sample/benchmark.cr`.
 
-In this example, Tokoroten uses 4 processes.
+In this example, tokoroten uses 4 processes.
 
 ```bash
 Start benchmarking...
@@ -23,7 +23,7 @@ Start benchmarking...
 ----- `spawn`
 => 10.704[sec]
 
-Tokoroten is about 4.0x faster than spawn
+tokoroten is about 4.0x faster than spawn
 ```
 
 ## Installation
