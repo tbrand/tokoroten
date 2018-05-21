@@ -1,7 +1,6 @@
 require "../src/tokoroten"
 
 class MyWorker < Tokoroten::Worker
-
   def task(message : String)
     response("#{message}-ok")
   end

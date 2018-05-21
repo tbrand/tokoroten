@@ -6,7 +6,6 @@ module Tokoroten
 
     def self.create(num : Int32 = 1,
                     read_timeout : Int32? = nil) : Array(Worker)
-
       workers = [] of Worker
 
       num.times do |_|

@@ -7,12 +7,12 @@ def benchmark(target)
   r = target.new.exec
 
   raise "invalid result for #{target}" unless r == 12
- 
+
   e = Time.now
 
-  min = (e-s).minutes * 60
-  sec = (e-s).seconds
-  mec = (e-s).milliseconds * 0.001
+  min = (e - s).minutes * 60
+  sec = (e - s).seconds
+  mec = (e - s).milliseconds * 0.001
 
   t = min + sec + mec
 

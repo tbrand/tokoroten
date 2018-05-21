@@ -20,11 +20,11 @@ end
 
 class MyTokoroten
   @workers : Array(Tokoroten::Worker)
-  @result  : Int32
+  @result : Int32
 
   def initialize
     @workers = MyWorker.create(4)
-    @result  = 0
+    @result = 0
   end
 
   def exec : Int32
