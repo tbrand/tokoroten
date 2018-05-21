@@ -64,4 +64,39 @@ describe Worker do
       end
     end
   end
+
+  context "sequential writes" do
+    it "successfully execute" do
+      ws = MyWorker.create(1)
+      ws[0].exec("hoge0")
+      ws[0].exec("hoge1")
+      ws[0].receive.not_nil!.should eq("hoge0 -- response")
+      ws[0].receive.not_nil!.should eq("hoge1 -- response")
+      ws[0].kill
+    end
+
+    it "successfully execute in multiple processes" do
+      ws = MyWorker.create(2)
+      ws[0].exec("hoge0")
+      ws[0].exec("hoge1")
+      ws[1].exec("hoge0")
+      ws[1].exec("hoge1")
+
+      ws[0].receive.not_nil!.should eq("hoge0 -- response")
+      ws[0].receive.not_nil!.should eq("hoge1 -- response")
+      ws[1].receive.not_nil!.should eq("hoge0 -- response")
+      ws[1].receive.not_nil!.should eq("hoge1 -- response")
+      ws[0].kill
+      ws[1].kill
+    end
+  end
+
+  context "text with new line" do
+    it "successfully execute" do
+      ws = MyWorker.create(1)
+      ws[0].exec("ho\nge")
+      ws[0].receive.not_nil!.should eq("ho\nge -- response")
+      ws[0].kill
+    end
+  end
 end
