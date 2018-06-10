@@ -8,6 +8,13 @@ class MyWorker < Worker
   end
 end
 
+class MyWorkerSleep < Worker
+  def task(message : String)
+    sleep 0.5
+    response(message + " -- response")
+  end
+end
+
 describe Worker do
   context "when call #create" do
     it "successfully create workers" do
@@ -97,6 +104,85 @@ describe Worker do
       ws[0].exec("ho\nge")
       ws[0].receive.not_nil!.should eq("ho\nge -- response")
       ws[0].kill
+    end
+  end
+
+  context "big text" do
+    it "successfully execute" do
+      big_message = "abc\n\"\"}" * 10000
+
+      ws = MyWorker.create(1)
+      ws[0].exec(big_message)
+      ws[0].receive.not_nil!.should eq(big_message + " -- response")
+      ws[0].kill
+    end
+
+    it "successfully execute in multiple threads" do
+      big_message = "abc\n\"\"}" * 10000
+
+      nw = 5
+      ws = MyWorker.create(nw)
+
+      spawn do
+        ws.each do |w|
+          w.exec(big_message)
+        end
+      end
+
+      ws.each do |w|
+        w.receive.not_nil!.should eq(big_message + " -- response")
+        w.kill
+      end
+    end
+
+    it "successfully execute in multiple threads multiple times" do
+      big_message = "abc\n\"\"}" * 10000
+
+      nw = 5
+      ne = 10
+      ws = MyWorker.create(nw)
+
+      spawn do
+        ws.each do |w|
+          ne.times do |_|
+            w.exec(big_message)
+          end
+        end
+      end
+
+      ws.each do |w|
+        ne.times do |_|
+          w.receive.not_nil!.should eq(big_message + " -- response")
+        end
+
+        w.kill
+      end
+    end
+
+    it "successfully execute in multiple threads and be executed in spawned thread multiple times" do
+      big_message = "abc\n\"\"}" * 10000
+
+      nw = 5
+      ne = 10
+      ws = MyWorker.create(nw)
+
+      spawn do
+        ws.each do |w|
+          ne.times do |_|
+            spawn do
+              w.exec(big_message)
+            end
+          end
+        end
+      end
+
+      ws.each do |w|
+        ne.times do |_|
+          w.receive.not_nil!.should eq(big_message + " -- response")
+        end
+
+        w.kill
+      end
     end
   end
 end

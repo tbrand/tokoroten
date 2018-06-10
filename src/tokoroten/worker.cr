@@ -17,12 +17,20 @@ module Tokoroten
           worker_reader.read_timeout = read_timeout
         end
 
+        main_reader.sync = true
+        main_writer.sync = true
+
+        worker_reader.sync = true
+        worker_writer.sync = true
+
         worker = new(main_reader, main_writer, worker_reader, worker_writer)
         worker.run
         workers << worker
       end
       workers
     end
+
+    @message_pool = [] of String
 
     def initialize(@main_reader : IO::FileDescriptor, @main_writer : IO::FileDescriptor,
                    @worker_reader : IO::FileDescriptor, @worker_writer : IO::FileDescriptor)
@@ -33,15 +41,26 @@ module Tokoroten
         loop do
           next unless message = @worker_reader.gets(DELIMITER, true)
 
-          spawn task(message)
+          task(message)
+        end
+      end
+
+      wait_thread
+    end
+
+    def wait_thread
+      spawn do
+        loop do
+          sleep 0.01
+
+          next unless message = @message_pool.shift?
+          @worker_writer.print "#{message}#{DELIMITER}"
         end
       end
     end
 
     def exec(message : String? = nil)
-      spawn do
-        @worker_writer.print "#{message}#{DELIMITER}"
-      end
+      @message_pool << message
     end
 
     def response(message : String)
